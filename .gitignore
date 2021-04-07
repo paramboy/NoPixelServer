@@ -23,6 +23,4 @@ citizen/system_resources/monitor/web/public/css/dark.scss
 *.smudge
 *.backup
 *.lnk
-server.cfg.bkp
-server.cfg
-server.cfg
+.vscode/settings.json
