@@ -1,6 +1,6 @@
 DecorRegister('ScriptedPed', 2)
 
-local density = 0.5
+local density = 0.8
 CreateThread(function()
   while true do
     SetParkedVehicleDensityMultiplierThisFrame(density)
@@ -13,6 +13,7 @@ CreateThread(function()
 end)
 
 local MarkedPeds = {}
+local RequiredChecks = 4
 
 function IsModelValid(ped)
   local eType = GetPedType(ped)
@@ -22,7 +23,7 @@ end
 function IsPedValid(ped)
   local isScripted = DecorExistOn(ped, 'ScriptedPed')
 
-  return not isScripted and not IsPedDeadOrDying(ped, 1) and IsModelValid(ped) and IsPedStill(ped) and IsEntityStatic(ped) and not IsPedInAnyVehicle(ped) and not IsPedUsingAnyScenario(ped)
+  return not isScripted and IsModelValid(ped) and not IsEntityAMissionEntity(ped) and NetworkGetEntityIsNetworked(ped) and not IsPedDeadOrDying(ped, 1)  and IsPedStill(ped) and IsEntityStatic(ped) and not IsPedInAnyVehicle(ped) and not IsPedUsingAnyScenario(ped)
 end
 
 Citizen.CreateThread(function()
@@ -33,8 +34,8 @@ Citizen.CreateThread(function()
       local handle, ped = FindFirstPed()
 
       repeat
-          if IsPedValid(ped) then
-            MarkedPeds[ped] = ped
+          if IsPedValid(ped) and not MarkedPeds[ped] then
+            MarkedPeds[ped] = 1
           end
 
           success, ped = FindNextPed(handle)
@@ -46,38 +47,46 @@ Citizen.CreateThread(function()
     end
 end)
 
+function DeleteRoguePed(pPed)
+  local owner = NetworkGetEntityOwner(pPed)
+
+  if owner == -1 or owner == PlayerId() then
+    DeleteEntity(pPed)
+  else
+    local netId = NetworkGetNetworkIdFromEntity(pPed)
+
+    return { netId = netId, owner = GetPlayerServerId(owner)}
+  end
+end
+
 Citizen.CreateThread(function()
     while true do
       local idle = 3000
 
       local toDelete = {}
-      local playerId = PlayerId()
       local playerCoords = GetEntityCoords(PlayerPedId())
 
-      for _, ped in pairs(MarkedPeds) do
-        if ped and DoesEntityExist(ped) then
-          if IsPedValid(ped) then
-            local entitycoords = GetEntityCoords(ped)
+      for ped, count in pairs(MarkedPeds) do
+        if ped and DoesEntityExist(ped) and IsPedValid(ped) then
+          local entitycoords = GetEntityCoords(ped)
 
-            if #(entitycoords - playerCoords) <= 100.0 then
-              local owner = NetworkGetEntityOwner(ped)
+          if count >= RequiredChecks and #(entitycoords - playerCoords) <= 100.0 then
 
-              if owner == playerId then
-                DeleteEntity(ped)
-              else
-                local netId = NetworkGetNetworkIdFromEntity(ped)
+            local deleteInfo = DeleteRoguePed(ped)
 
-                toDelete[#toDelete+1] = { netId = netId, owner = GetPlayerServerId(owner)}
-              end
+            if deleteInfo then
+              toDelete[#toDelete+1] = deleteInfo
             end
           end
+
+          MarkedPeds[ped] = count + 1
+        else
+          MarkedPeds[ped] = nil
         end
       end
 
       if #toDelete > 0 then
         TriggerServerEvent('np:peds:rogue', toDelete)
-      else
-        MarkedPeds = {}
       end
 
       Citizen.Wait(idle)

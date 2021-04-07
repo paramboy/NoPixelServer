@@ -1627,14 +1627,14 @@ function nearClothingMotel()
 	if #(vector3(myroomcoords.x + 10, myroomcoords.y + 6, myroomcoords.z) - GetEntityCoords(PlayerPedId())) < 5.5 and curRoomType == 2 then
 		return true
 	end	
-	if #(vector3(myroomcoords.x - 3, myroomcoords.y - 7, myroomcoords.z) - GetEntityCoords(PlayerPedId())) < 55.5 and curRoomType == 3 then
+	if #(vector3(myroomcoords.x - 3, myroomcoords.y - 7, myroomcoords.z) - GetEntityCoords(PlayerPedId())) < 5.5 and curRoomType == 3 then
 		return true
 	end		
-
+	-- Jail wardrobe
 	if #(vector3(1782.86, 2494.95, 50.43) - GetEntityCoords(PlayerPedId())) < 8.5 then
 		return true
 	end	
-
+	--[[
 	local myjob = exports["isPed"]:isPed("myjob")
 	--missionrow locker room
 	if myjob == "police" then
@@ -1648,8 +1648,15 @@ function nearClothingMotel()
 	if myjob == "doctor" then
 		return true
 	end
+	]]
 	return false
 end
+
+-- check if player near a hotel wardrobe
+RegisterNetEvent('hotel:nearClothingMotel')
+AddEventHandler('hotel:nearClothingMotel', function()
+    nearClothingMotel()
+end)
 
 RegisterNetEvent('hotel:listSKINSFORCYRTHESICKFUCK')
 AddEventHandler('hotel:listSKINSFORCYRTHESICKFUCK', function(skincheck)

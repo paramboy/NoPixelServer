@@ -21,3 +21,5 @@ files {
   "scripts.js",
   "css/style.css"
 }
+
+export "nearClothingMotel"

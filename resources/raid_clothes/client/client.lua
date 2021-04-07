@@ -1175,7 +1175,7 @@ end)
 
 
 RegisterCommand("outfitadd", function(source, args, rawCommand)
-    if (IsNearShop(clothingShops) < 9.0) or homeWardrobe == true then
+    if (IsNearShop(clothingShops) < 9.0) or exports["apartments"]:nearClothingMotel() then
        if args[1] and args[2] then
            TriggerEvent('raid_clothes:outfits', 1, tonumber(args[1]), args[2])
        else
@@ -1189,7 +1189,7 @@ RegisterCommand("outfitadd", function(source, args, rawCommand)
 end, false)
 
 RegisterCommand("outfituse", function(source, args, rawCommand)
-    if (IsNearShop(clothingShops) < 9.0) or homeWardrobe == true then
+    if (IsNearShop(clothingShops) < 9.0) or exports["apartments"]:nearClothingMotel() then
       
        if args[1] then
        TriggerEvent('raid_clothes:outfits', 3, tonumber(args[1]))
@@ -1205,7 +1205,7 @@ RegisterCommand("outfituse", function(source, args, rawCommand)
 end, false) 
 
 RegisterCommand("removeoutfit", function(source, args, rawCommand)
-    if (IsNearShop(clothingShops) < 9.0) or homeWardrobe == true then
+    if (IsNearShop(clothingShops) < 9.0) or exports["apartments"]:nearClothingMotel() then
        if args[1] then
            TriggerEvent('raid_clothes:outfits', 2, tonumber(args[1]))
        else
