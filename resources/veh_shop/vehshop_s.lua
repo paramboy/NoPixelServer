@@ -59,6 +59,7 @@ AddEventHandler(
                 for k, v in pairs(result) do
                     carTable[v.id] = v
                     v.price = carTable[v.id].baseprice
+                end
                 TriggerClientEvent("veh_shop:returnTable", user.source, carTable)
             end
         )
